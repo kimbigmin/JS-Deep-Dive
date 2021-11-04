@@ -1,4 +1,157 @@
+
 // 19.프로토타입 예제 코드
+
+
+
+
+// 19.2 상속과 프로토타입 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+function Circle(radius) {
+  this.radius = radius;
+  this.getArea = function() {
+    return Math.PI * this.radius ** 2;
+  }
+};
+
+const circle1 = new Circle(1);
+const circle2 = new Circle(2);
+
+console.log(circle1.getArea === circle2.getArea); // false 서로 메서드가 다르다. 메모리 따로 차지
+
+//-----------------------
+
+function Circle(radius) {
+  this.radius = radius;
+}
+
+// 프로포타입에 상속
+Circle.prototype.getArea = function () {
+  return Math.PI * this.radius ** 2;
+};
+
+const circle1 = new Circle(1);
+const circle2 = new Circle(2);
+console.log(circle1.getArea === circle2.getArea); // true 메서드는 단 하나만 생성되어 Circle.prototype 에 메서드로 할당되었다.
+
+
+
+
+
+
+// 19.3 프로토타입 객체 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+//---------19.3.1 __proto__ 접근자 프로퍼티
+
+// 1. __proto__ 는 접근자 프로퍼티이다.
+const obj = {};
+const parent = { x: 1 };
+
+console.log(obj.__proto__); // 프로토타입을 반환 
+console.log(obj.prototype); // undefined --> because : prototype 객체는 함수객체에서만 생성되기 때문 일반 객체에선 생성 X
+
+obj.__proto__ = parent; // 프로토타입 즉, 부모 유전자를 parent 로 설정
+
+console.log(obj.x); // 1 
+
+
+
+// 2. __proto__ 접근자 프로퍼티는 상속을 통해 사용된다.
+const person = { name: 'kim' };
+
+console.log(person.hasOwnProperty('__proto__')); // false
+// __proto__ 프로퍼티는 모든 객체의 프로토타입 객체인 Object.prototype의 접근자 프로퍼티이다. 
+console.log(Object.getOwnPropertyDescriptor(Object.prototype, '__proto__'));
+
+// 모든 객체는 Object.prototype의 접근자 프로퍼티 __proto__ 를 상속받아 사용할 수 있다.
+console.log({}.__proto__ === Object.prototype); // true
+
+
+
+// 3. __proto__ 접근자 프로퍼티를 통해 프로토타입에 접근하는 이유
+// 상호 참조에 의해 프로토타입 체인이 생성되는 것을 방지하기 위해 (즉, 양방향 체인(검색) => 검색 무한루프)
+// __proto__ 는 상호 참조시 에러를 발생시키기 때문에 
+const parent = {};
+const child = {};
+
+child.__proto__ = parent;
+parent.__proto__ = child; // TypeError : ~~~>.. 
+
+
+// 4. __proto__ 접근자 프로퍼티를 코드 내에서 직접 사용하는 것은 권장 X
+// 모든 객체가 __proto__ 를 사용할 수 있는 것이 아니기 때문 , 직접 상속의 경우 Object.prototype을 상속받지 X
+
+// obj 는 체인의 종점이다. 따라서 Object.__proto__을 상속 받을 수 없다.
+const obj = Object.create(null); 
+
+console.log(obj.__proto__); // undefined
+console.log(Object.getPrototypeOf(obj)); // null 을 제대로 출력
+
+const obj = {};
+const parent = { x: 1 };
+
+// __proto__ 를 직접 쓰는 것보다 아래 메서드를 사용하는 것을 권장
+Object.getPrototypeOf(obj); // obj.__proto__; 와 같다.
+Object.setPrototypeOf(obj, parent); // obj.__proto__ = parent; 와 같다. 
+
+
+
+
+//---------19.3.2 함수 객체의 prototype 프로퍼티
+
+// 함수 객체는 prototype 프로퍼티를 소유한다.
+(function () {}).hasOwnProperty('prototype'); //true
+
+// 일반 객체는 소유 x
+({}).hasOwnProperty('prototype'); // false 
+
+// 화살표 함수, ES6 메서드 축약 표현도 prototype 프로퍼티 소유 X
+const Person = name => {
+  this.name = name;
+}
+
+console.log(Person.hasOwnProperty('prototype')); // false
+console.log(Person.prototype); // undefined
+
+// 화살표 함수, ES6 메서드 축약 표현도 prototype 프로퍼티 소유 X
+const obj = {
+  foo() {}
+};
+console.log(obj.foo.hasOwnProperty('prototype')); // false
+console.log(obj.foo.prototype); // undefined
+
+//----------------------
+// 생성자 함수
+function Person(name) {
+  this.name = name;
+}
+
+const me = new Person('kim');
+// 결국 Person.prototype 과 me.__proto__는 동일한 프로포타입을 가리킨다.
+console.log(Person.prototype === me.__proto__); // true
+
+
+
+//---------19.3.3 프로토타입의 constructor 프로퍼티와 생성자 함수
+
+// 생성자 함수
+function Person(name) {
+  this.name = name;
+}
+
+const me = new Person('kim');
+
+// me 객체의 생성자 함수는 Person 이다.
+console.log(me.constructor === Person); // true
+
+
+
+
+
+// 19.4 리터럴 표기법으로 생성된 객체의 생성자 함수와 프로토타입 @@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+
 
 
 // 19.11 직접 상속 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
