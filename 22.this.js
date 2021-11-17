@@ -132,3 +132,54 @@ const obj = {
 obj.foo();
 
 
+
+
+
+
+// 22.2.2 메서드 호출
+
+// 예제 1
+const person = {
+  name: 'Lee',
+  getName() {
+    // 메서드 내부의 this는 메서드를 호출한 객체에 바인딩된다.
+      return this.name;
+  }
+};
+
+// 메서드 getName을 호출한 객체는 person이다. 
+console.log(person.getName()); // Lee
+
+
+// 예제 2
+
+const anotherPerson = {
+  name: 'Kim'
+};
+
+anotherPerson.getName = person.getName;
+
+console.log(anotherPerson.getName()); // Kim
+
+const getName = person.getName;
+
+console.log(getName()); // ''
+
+
+// 예제 3
+
+function Person(name) {
+  this.name = name;
+}
+
+Person.prototype.getName = function () {
+  return this.name;
+};
+
+const me = new Person('Lee');
+
+console.log(me.getName()); // 'Lee'
+
+Person.prototype.name = 'Kim';
+
+console.log(Person.prototype.getName()); // Kim
